@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Serif+TC:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-cream-base: #FAF5EB;
+  --color-cream-card: #FFFDF9;
+  --color-cream-dark: #3F2B20;
+  --color-cream-muted: #8C7E74;
+  --color-cream-accent: #A47551;
+  --color-cream-accent-hover: #8D5B4C;
+  --color-cream-ginger: #E5A93C;
+  --color-cream-moss: #768A7A;
+  --color-cream-border: #E8E1D5;
+  --color-cream-highlight: #F5EFEB;
+  
+  --font-sans: "Inter", "Noto Sans TC", system-ui, sans-serif;
+  --font-serif: "Noto Serif TC", "Playfair Display", serif;
+}
+
+body {
+  background-color: var(--color-cream-base);
+  color: var(--color-cream-dark);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar for beautiful desktop experience but keeps mobile clean */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-cream-base);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-cream-border);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-cream-accent);
+}
+
+/* Simple pulse-glow animation or wiggle animation */
+@keyframes soft-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes soft-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.animate-soft-bounce {
+  animation: soft-bounce 2s infinite ease-in-out;
+}
+
+.animate-soft-pulse {
+  animation: soft-pulse 2s infinite ease-in-out;
+}
+

@@ -1,0 +1,6 @@
+{
+  "name": "釜山日和・旅遊助手",
+  "description": "奶油文青風格的釜山 4 天 3 夜旅遊助手，包含行程記帳、行李清單、找廁所與換錢所、韓文即時發音翻譯及即時匯率換算。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
