@@ -1,13 +1,1990 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-TW">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>四美同遊蔚藍海岸 - 釜山日和 4天3夜行前隨手帳</title>
+    
+    <!-- Meta tags for PWA and Mobile optimization -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    
+    <!-- Tailwind CSS (Play CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              cream: {
+                50: '#FFFDF9',
+                100: '#FAF5EB',
+                200: '#FAF6EE',
+                300: '#F5EFE4',
+                400: '#EBE5DA',
+                500: '#E8E1D5',
+                600: '#DCD5C9',
+                700: '#C5B9AC',
+                800: '#A7988E',
+                900: '#42342A'
+              },
+              charcoal: '#3F2B20',
+              sage: '#768A7A',
+              amberBrown: '#A47551',
+              slateGrey: '#8C7E74'
+            },
+            fontFamily: {
+              serif: ['Playfair Display', 'Georgia', 'serif'],
+              sans: ['Inter', 'system-ui', 'sans-serif'],
+              mono: ['JetBrains Mono', 'monospace']
+            }
+          }
+        }
+      }
+    </script>
+
+    <!-- React & React-DOM UMD from unpkg -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <!-- Babel Standalone compiler -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;1,400&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- CSS styling overrides & custom classes -->
+    <style>
+      body {
+        background-color: #FAF5EB;
+        font-family: 'Inter', sans-serif;
+        color: #3F2B20;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      input, button {
+        outline: none !important;
+      }
+    </style>
   </head>
-  <body>
+  <body class="bg-[#FAF5EB] selection:bg-[#A47551]/20">
+    <!-- Root Mounting Element -->
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+
+    <!-- Main JS Application script translated on the fly via Babel -->
+    <script type="text/babel">
+      const { useState, useEffect } = React;
+
+      // ==========================================
+      // CONSTANT STATIC DATA PACKET
+      // ==========================================
+      const initialFlights = [
+        {
+          id: "f1",
+          type: "departure",
+          carrier: "濟州航空",
+          route: "高雄 (KHH) → 釜山 (PUS)",
+          time: "2026/06/22 17:00 ~ 20:30",
+          supplement: "高雄機場 3 樓出境層"
+        },
+        {
+          id: "f2",
+          type: "return",
+          carrier: "德威航空",
+          route: "釜山 (PUS) → 高雄 (KHH)",
+          time: "2026/06/25 15:00 ~ 16:50",
+          supplement: "金海機場 2 樓 C 區"
+        }
+      ];
+
+      const initialHotel = {
+        name: "釜山海雲台中心彩鴻酒店",
+        krName: "트레블로지 해운대 (Travelodge Haeundae)",
+        url: "https://map.naver.com/v5/search/%ED%8A%B8%EB%A0%88%EB%B8%94%EB%A1%9C%EC%A7%80%20%ED%95%B1%EC%9A%B4%EB%8C%80",
+        address: "부산 해운대구 구남로 22"
+      };
+
+      const initialLuggageCategories = [
+        {
+          id: "lc1",
+          categoryName: "重要文件",
+          remarks: [],
+          items: [
+            { id: "li1_1", name: "護照正本 (效期半年以上)", checked: false },
+            { id: "li1_2", name: "Q-CODE QR Code 截圖", checked: false },
+            { id: "li1_3", name: "來回機票與飯店確認單", checked: false },
+            { id: "li1_4", name: "韓元現金、預備信用卡", checked: false }
+          ]
+        },
+        {
+          id: "lc2",
+          categoryName: "電子產品",
+          remarks: [],
+          items: [
+            { id: "li2_1", name: "雙腳圓孔轉接頭、變壓器", checked: false },
+            { id: "li2_2", name: "行動電源", checked: false },
+            { id: "li2_3", name: "延長線 / 各式充電器及充電線", checked: false },
+            { id: "li2_4", name: "網卡 / SIM卡 / 隨身Wi-Fi", checked: false }
+          ]
+        },
+        {
+          id: "lc3",
+          categoryName: "個人藥品",
+          remarks: [],
+          items: [
+            { id: "li3_1", name: "腸胃藥 / 止瀉藥", checked: false },
+            { id: "li3_2", name: "感冒藥 / 退燒藥", checked: false },
+            { id: "li3_3", name: "個人慢性病常用藥", checked: false },
+            { id: "li3_4", name: "OK繃與外傷藥膏", checked: false }
+          ]
+        },
+        {
+          id: "lc4",
+          categoryName: "個人衣物",
+          remarks: [],
+          items: [
+            { id: "li4_1", name: "個人換洗衣物、內著衣襪", checked: false },
+            { id: "li4_2", name: "防風外套 / 遮陽外套 (海邊風大)", checked: false },
+            { id: "li4_3", name: "好走透氣便鞋、慢跑鞋", checked: false },
+            { id: "li4_4", name: "遮陽帽、太陽眼鏡", checked: false }
+          ]
+        },
+        {
+          id: "lc5",
+          categoryName: "盥洗與生理用品",
+          remarks: [],
+          items: [
+            { id: "li5_1", name: "牙刷與牙膏 (部分環保旅宿不提供)", checked: false },
+            { id: "li5_2", name: "防曬乳 / 防曬噴霧", checked: false },
+            { id: "li5_3", name: "保濕乳液、護唇膏 (韓國較乾燥)", checked: false },
+            { id: "li5_4", name: "隱形眼鏡、保養液與眼鏡", checked: false }
+          ]
+        },
+        {
+          id: "lc6",
+          categoryName: "其他隨身好物",
+          remarks: [],
+          items: [
+            { id: "li6_1", name: "折疊晴雨傘", checked: false },
+            { id: "li6_2", name: "真空衣物收納袋", checked: false },
+            { id: "li6_3", name: "退稅單據收納夾", checked: false },
+            { id: "li6_4", name: "原子筆 (機上填寫申報單)", checked: false }
+          ]
+        }
+      ];
+
+      const initialPhrases = [
+        {
+          id: "p1",
+          chinese: "請問這個多少錢？",
+          korean: "이것은 얼마예요?",
+          pronunciation: "i-geo-seun ol-ma-ye-yo?",
+          category: "常用"
+        },
+        {
+          id: "p2",
+          chinese: "請載我到這個地址，謝謝。",
+          korean: "이 주소로 가주세요, 감사합니다.",
+          pronunciation: "i ju-so-ro ga-ju-se-yo, gam-sa-ham-ni-da.",
+          category: "交通"
+        },
+        {
+          id: "p3",
+          chinese: "請問化妝室在哪裡？",
+          korean: "화장실이 어디에 있어요?",
+          pronunciation: "hwa-jang-si-ri eo-di-e is-seo-yo?",
+          category: "常用"
+        },
+        {
+          id: "p4",
+          chinese: "請給我一張收據（退稅用）。",
+          korean: "영수증 주세요 (택스프리용).",
+          pronunciation: "yeong-su-jeung ju-se-yo (taek-seu-peu-ri-yong).",
+          category: "購物"
+        },
+        {
+          id: "p5",
+          chinese: "請幫我做不辣的，謝謝。",
+          korean: "안 맵게 해주세요, 감사합니다.",
+          pronunciation: "an maep-ge hae-ju-se-yo, gam-sa-ham-ni-da.",
+          category: "美食"
+        },
+        {
+          id: "p6",
+          chinese: "這個可以退稅嗎？",
+          korean: "이거 텍스프리 돼요?",
+          pronunciation: "i-geo taek-seu-peu-ri dwae-yo?",
+          category: "購物"
+        },
+        {
+          id: "p7",
+          chinese: "請推薦一下這餐館的招牌菜。",
+          korean: "여기 대표 메뉴 추천해 주세요.",
+          pronunciation: "yeo-gi dae-pyo me-nyu chu-cheon-hae ju-se-yo.",
+          category: "美食"
+        },
+        {
+          id: "p8",
+          chinese: "可以幫忙拍照嗎？",
+          korean: "사진 좀 찍어주실 수 있으세요?",
+          pronunciation: "sa-jin jom jjig-eo-ju-sil su is-seu-se-yo?",
+          category: "常用"
+        },
+        {
+          id: "p9",
+          chinese: "我迷路了，請問地鐵站在哪？",
+          korean: "길을 잃었어요, 지하철역이 어디예요?",
+          pronunciation: "gi-reul i-reos-seo-yo, ji-ha-cheol-yeo-gi eo-di-ye-yo?",
+          category: "交通"
+        },
+        {
+          id: "p10",
+          chinese: "請救救我！我有緊急狀況。",
+          korean: "도와주세요! 긴급 상황입니다.",
+          pronunciation: "do-wa-ju-se-yo! gin-geup sang-hwang-im-ni-da.",
+          category: "緊急"
+        }
+      ];
+
+      const initialItinerary = [
+        {
+          day: 1,
+          date: "6/22（日）",
+          title: "抵達釜山・初見碧海",
+          transportInfo: "17:00高雄起飛 ➔ 20:30抵達 ➔ 21:00起搭車 ➔ 21:30 入住酒店",
+          spots: [
+            {
+              id: "d1-s1",
+              time: "20:30",
+              title: "抵達釜山金海國際機場",
+              purpose: "機場辦理入境、提取行李與辦理SIM卡",
+              naverMapUrl: "https://naver.me/GNRjwFwb",
+              address: "부산 강서구 공항진입로 108",
+              notes: [
+                "辦理入關手續，跟著指標走",
+                "提領大件行李，記得順便在MONEY BOX輕軌站機台換點零錢，或者直接用WOWPASS卡"
+              ]
+            },
+            {
+              id: "d1-s2",
+              time: "約 21:00",
+              title: "搭乘計程車前往海雲台飯店",
+              purpose: "搭計程車直接抵達飯店快速又省力",
+              notes: [
+                "車程大約 30 分鐘，費用在 25,000 ~ 30,000 韓元之間",
+                "如果司機不懂中文可以把飯店的 NAVER MAP 或韓文地址直接亮給司機看"
+              ]
+            },
+            {
+              id: "d1-s3",
+              time: "約 21:30",
+              title: "辦理入住｜釜山海雲台中心彩鴻酒店",
+              purpose: "飯店 Check-in 放置重物",
+              naverMapUrl: "https://map.naver.com/v5/search/%ED%8A%B8%EB%A0%88%EB%B8%94%EB%A1%9C%EC%A7%80%20%ED%95%B1%EC%9A%B4%EB%8C%80",
+              address: "부산 해운대구 구남로 22",
+              notes: [
+                "韓文：트레블로지 해운대 (Travelodge Haeundae)",
+                "位於古南路/海雲台地鐵站附近，出入、用餐與逛街極其便利，且步行即可抵達海水浴場！"
+              ]
+            },
+            {
+              id: "d1-s4",
+              time: "深夜",
+              title: "第一晚的美味宵夜：韓式炸雞",
+              purpose: "體驗正宗韓國宵夜文化",
+              notes: [
+                "推薦品牌一：🍖 PURADAK 炸雞 (푸라닭치킨) - 高級的黑色包裝，強烈的烘烤過再油炸工法，外酥內嫩！",
+                "推薦品牌二：🍗 60雞炸雞 (60계치킨) - 主打「每桶新油只炸 60 隻雞」，健康純淨無油耗味！",
+                "可使用外送平台、請飯店櫃檯代點，或在飯店周邊散步外帶，配上清涼啤酒享受釜山第一晚！"
+              ]
+            }
+          ]
+        },
+        {
+          day: 2,
+          date: "6/23（一）",
+          title: "廣安里海景・南浦洞狂歡購物日",
+          transportInfo: "飯店 ➔ (計程車10分) ➔ 廣安里 ➔ (計程車30分) ➔ 南浦洞 ➔ (計程車) ➔ 松島纜車",
+          spots: [
+            {
+              id: "d2-s1",
+              time: "09:30～11:00",
+              title: "廣安里海景早午餐｜Working Holiday",
+              purpose: "享受絕美廣安大橋海景 + 豐盛早午餐",
+              naverMapUrl: "https://naver.me/xgNS92At",
+              address: "부산 수영구 광안해변로 235 3층 워킹홀리데이",
+              notes: [
+                "韓文店名：워킹홀리데이 (Working Holiday)",
+                "位於 Olive Young 廣安里店的 3 樓，觀看廣安大橋視野絕佳",
+                "熱門窗邊位置需稍作等待，咖啡與舒芙蕾推薦！"
+              ]
+            },
+            {
+              id: "d2-s2",
+              time: "11:30～15:00",
+              title: "光復路時尚街 (南浦洞巨星購物特區)",
+              purpose: "釜山南浦洞核心商業街巡禮",
+              naverMapUrl: "https://naver.me/xNLXIkNq",
+              address: "남포역(해동병원)7번출구 (地鐵南浦站7號出口)",
+              notes: [
+                "【必逛服飾】SPA 品牌 WHO.A.U、SPAO、8 Seconds、Wonder Place、The North Face 白標店，這裡樣式超齊全",
+                "【雜貨伴手】ARTBOX 文具雜貨 (超療癒小物插畫公仔)；大創 3層樓旗艦店 (韓國限定大創好物推薦，地圖：https://naver.me/x0UABelr)",
+                "【人氣美食】HBAF 杏仁果專專賣店有豐富口味試吃 (地圖：https://naver.me/GRoZoJ5K)；BIFF 廣場排隊吃必吃「元祖黑糖餅」(地圖：https://naver.me/FDnCfOLW)",
+                "【藥妝必買】大間 Olive Young 旗艦門市 (韓系保養一應俱全，地圖：https://naver.me/x8tpgm68)；以及 Ready Young 等免稅藥局 (地圖：https://naver.me/F42MYkSY)"
+              ]
+            },
+            {
+              id: "d2-s3",
+              time: "15:00～16:30",
+              title: "喉嚨烤肉 ( 목구멍 Nampo )",
+              purpose: "大啖韓式極厚厚切釜蓋五花肉",
+              naverMapUrl: "https://naver.me/GI3heSHE",
+              address: "부산 중구 남포길 38-1 (南浦洞美食必列)",
+              notes: [
+                "使用巨大的鑄鐵釜蓋炙烤，五花肉外焦裡嫩鎖住滿嘴肉汁",
+                "全程有專業店員幫忙烤肉剪肉，搭配獨門辣醬及生菜泡菜！"
+              ]
+            },
+            {
+              id: "d2-s4",
+              time: "16:30～17:30",
+              title: "富平罐頭市場",
+              purpose: "釜山老牌傳統夜市/小吃聚集地",
+              naverMapUrl: "https://naver.me/GCvq48kt",
+              address: "부산 중구 부평1길 48",
+              notes: [
+                "推薦品嚐：釜山魚糕、魚卵炒飯、油豆腐包、香辣拌寬粉",
+                "一邊拿著小吃，一邊感受在地阿珠媽的熱情魅力"
+              ]
+            },
+            {
+              id: "d2-s5",
+              time: "16:30～17:30",
+              title: "國際市場",
+              purpose: "歷史洋溢的老字號批發街，必買韓式棉被",
+              naverMapUrl: "https://naver.me/GuDx2J0F",
+              address: "부산 중구 신창동4가",
+              notes: [
+                "備註：此處地圖導航設定為熱門的「台灣老闆娘開的棉被店家」，溝通熱情零障礙，非常推薦！",
+                "最著名的是「韓式棉被」，質地極佳、輕柔保暖又可機洗，老闆會幫忙抽真空打包方便帶上飛機",
+                "各種生活日雜、古著、韓風餐具應有盡有"
+              ]
+            },
+            {
+              id: "d2-s6",
+              time: "17:45～18:45",
+              title: "松島海上觀光纜車 (송도해상케이블카)",
+              purpose: "搭乘凌空水晶纜車，飽覽影島落日與大海",
+              naverMapUrl: "https://naver.me/Fmf6KBhZ",
+              address: "부산 서구 송도해변로 171",
+              notes: [
+                "可以預定「水晶車廂」(地板全透明)，拍照刺激感十足",
+                "這個時間點來能完美捕獲夕陽西下時，廣闊大海被染成橘紅色的唯美瞬間"
+              ]
+            },
+            {
+              id: "d2-s7",
+              time: "晚上",
+              title: "返回飯店 | 休息整理今日瘋狂戰利品",
+              purpose: "放鬆疲憊雙腿",
+              naverMapUrl: "https://naver.me/xucpY7PI",
+              address: "釜山海雲台中心彩鴻酒店"
+            }
+          ]
+        },
+        {
+          day: 3,
+          date: "6/24（二）",
+          title: "海雲台漫步・青沙浦天空膠囊之旅",
+          transportInfo: "早餐 ➔ Homeplus ➔ 返回飯店放戰利品 ➔ (計程車15分) ➔ 海理團路 ➔ 青沙浦 ➔ 天空膠囊 ➔ 市場",
+          spots: [
+            {
+              id: "d3-s1",
+              time: "09:30～10:30",
+              title: "水邊最高豬肉湯飯 (수변최고돼지국밥)",
+              purpose: "釜山人靈魂早點！熱呼呼地道豬肉湯飯",
+              naverMapUrl: "https://naver.me/FTXwcV8c",
+              address: "부산 해운대구 센텀3로 26 (Centum分店，靠近飯店)",
+              notes: [
+                "湯頭熬煮至乳白色，豬牛肉分量極有誠意，加上滿滿蝦醬與韭菜貼心佐餐",
+                "熱門店家，建議稍微提前抵達避開最擁擠的排隊人龍"
+              ]
+            },
+            {
+              id: "d3-s2",
+              time: "10:30～12:30",
+              title: "Homeplus 巨大型超市",
+              purpose: "大肆採購便利餐食、泡麵、零食伴手禮",
+              naverMapUrl: "https://naver.me/Fuz5sQvj",
+              address: "부산 해운대구 우동 1407 (Centum City店)",
+              notes: [
+                "韓國超好逛的本土大超市！各種口味堅果、零食、辣醬、泡菜一次買齊",
+                "現場提供打包紙箱，還可以憑護照當場扣除稅額辦退稅！"
+              ]
+            },
+            {
+              id: "d3-s3",
+              time: "13:00～15:00",
+              title: "海理團路 (Café Walk)",
+              purpose: "散步、尋覓質感網美文青咖啡館與選品店",
+              naverMapUrl: "https://naver.me/xmxIx8kL",
+              address: "부산 해운대구 우동1로20번길 21 1층 (導航推薦至人氣伴手禮選品店)",
+              notes: [
+                "由廢棄舊鐵路宿舍群翻新而成的超人氣文青市區",
+                "有名伴手禮備註：推薦購買【BUSAN BADA SAND】（釜山沙灘夾心餅），包裝極有紀念價值！",
+                "有可愛插畫文具店、韓系黑白照相拍貼館，以及非常多的手工甜點店"
+              ]
+            },
+            {
+              id: "d3-s4",
+              time: "15:00～16:30",
+              title: "味贊王鹽烤肉 (맛찬들왕소금구一)",
+              purpose: "品嚐3.5公分黃金厚度巨無霸鹽烤豬五花",
+              naverMapUrl: "https://naver.me/GSDACPH7",
+              address: "부산 해운대구 우동 543-2",
+              notes: [
+                "熟成豬五花爆出滿嘴噴香的脂香，表面烤得酥脆香濃",
+                "特製辣拌蔥、泡菜以及外省特色大蔥配烤肉，極限享受！"
+              ]
+            },
+            {
+              id: "d3-s5",
+              time: "17:00～17:45",
+              title: "青沙浦站 (灌籃高手海岸平交道)",
+              purpose: "打卡海景鐵道經典畫面、散步聽濤",
+              naverMapUrl: "https://naver.me/xq3aEIjM",
+              address: "부산 해운대구 청사포로 116 (青沙浦海岸線區)",
+              notes: [
+                "因為極為神似《灌籃高手》鐮倉場景而爆紅的湛藍海岸道路",
+                "建議前往海邊著名的雙子紅綠燈塔攝影，夕陽前光線暖和極好拍"
+              ]
+            },
+            {
+              id: "d3-s6",
+              time: "18:00～18:30",
+              title: "海雲台天空膠囊列車 (青沙浦 ➔ 尾浦)",
+              purpose: "浪漫行駛於岩壁軌道上的彩色膠囊高空小列車",
+              notes: []
+            },
+            {
+              id: "d3-s7",
+              time: "18:30",
+              title: "自然島鹽麵包 (자연도소금빵 海雲台尾浦店)",
+              purpose: "暴風排隊名店，出爐香氣逼死人",
+              naverMapUrl: "https://naver.me/xrSQSF2f",
+              address: "부산 해운대구 달맞이길62번길 38 1층",
+              notes: [
+                "每天限制時段出爐，剛出爐的外皮油亮酥香，底邊微焦帶點焦糖脆！",
+                "一口咬下去極為罪惡但保證超乎預期"
+              ]
+            },
+            {
+              id: "d3-s8",
+              time: "19:00～深夜",
+              title: "海雲台海水浴場沙灘 (散步夜景)",
+              purpose: "漫步在鬆軟沙灘上，仰望LCT摩天大樓群夜景",
+              naverMapUrl: "https://naver.me/F0z2RxAs",
+              address: "부산 해운대구 우동 (海雲台海水浴場)",
+              notes: [
+                "從鹽麵包走過來的路程文字已正名為「沿著海灘散步(約13分鐘)」！",
+                "海雲台沙灘夜晚有著獨特的迷人波光，吹風散步極具情調"
+              ]
+            },
+            {
+              id: "d3-s9",
+              time: "19:00～深夜",
+              title: "海雲台傳統市場",
+              purpose: "回程晚餐/宵夜：辣炒年糕、盲鰻、糖餅與辣魚湯",
+              naverMapUrl: "https://naver.me/GzE9ensG",
+              address: "부산 해운대구 중동1로 42-16",
+              notes: [
+                "尚國家辣炒年糕(상국이네)是極熱門的名店，年糕粗彈、醬汁濃厚！",
+                "一邊在釜山涼涼晚風中慢慢享用烤盲鰻"
+              ]
+            },
+            {
+              id: "d3-s10",
+              time: "晚上",
+              title: "返回飯店休息",
+              purpose: "帶點市場小吃和飲料，回飯店好好放鬆",
+              naverMapUrl: "https://naver.me/xucpY7PI",
+              address: "釜山海雲台中心彩鴻酒店"
+            }
+          ]
+        },
+        {
+          day: 4,
+          date: "6/25（三）",
+          title: "漫步釜山・帶滿回憶歸國",
+          transportInfo: "整理退房 ➔ 12:30 搭乘計程車前往機場 ➔ 13:00 抵達 ➔ 15:00 搭機返台",
+          spots: [
+            {
+              id: "d4-s1",
+              time: "上午",
+              title: "行李最後大整理、退房辦理",
+              purpose: "確認美妝、衣服打包無漏，完成退房手續",
+              notes: [
+                "退房時如果是易碎品或免稅棉被包，可以請酒店前台協助捆包",
+                "確認退稅單據都在夾鏈袋內收納妥當"
+              ]
+            },
+            {
+              id: "d4-s2",
+              time: "12:30",
+              title: "搭乘計程車前往金海國際機場",
+              purpose: "計程車直接返程最輕鬆，避免提著大包小包行李擠輕軌",
+              notes: [
+                "預計車程約30 ~ 40分鐘，費用約 28,000 韓元"
+              ]
+            },
+            {
+              id: "d4-s3",
+              time: "13:00",
+              title: "抵達金海機場 ➔ 辦理免稅與託運",
+              purpose: "預留2小時，完成最關鍵的機場退稅流程",
+              naverMapUrl: "https://naver.me/GNRjwFwb",
+              address: "부산 강서구 공항진입로 108",
+              notes: [
+                "【重要！！】退稅必須在行李託運之前完成機台掃描！",
+                "在金海機場 2 樓 Gate 4 主櫃台有退稅自助掃描機台，將護照與所有退稅單 QR 碼都刷過",
+                "掃完過安檢後，去 NICE TAX FREE 窗口領回現金！"
+              ]
+            },
+            {
+              id: "d4-s4",
+              time: "15:00",
+              title: "德威航空：飛往高雄",
+              purpose: "搭機返程，欣賞窗外美麗藍天",
+              notes: [
+                "德威航班在金海機場 2 樓 C 區櫃台辦理登機與託運"
+              ]
+            },
+            {
+              id: "d4-s5",
+              time: "16:50",
+              title: "抵達高雄國際機場",
+              purpose: "平安到家，期待下次釜山相遇"
+            }
+          ]
+        }
+      ];
+
+      // ==========================================
+      // ICON HELPERS (PURE SVG COMPONENTS)
+      // ==========================================
+      const SvgIcon = ({ name, className = "w-5 h-5" }) => {
+        const svgProps = {
+          className,
+          fill: "none",
+          stroke: "currentColor",
+          strokeWidth: "2.5",
+          strokeLinecap: "round",
+          strokeLinejoin: "round",
+          viewBox: "0 0 24 24"
+        };
+
+        if (name === "compass") {
+          return (
+            <svg {...svgProps}>
+              <circle cx="12" cy="12" r="10" />
+              <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+            </svg>
+          );
+        }
+        if (name === "check") {
+          return (
+            <svg {...svgProps} strokeWidth="3">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          );
+        }
+        if (name === "trash") {
+          return (
+            <svg {...svgProps}>
+              <polyline points="3 6 5 6 21 6" />
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+              <line x1="10" y1="11" x2="10" y2="17" />
+              <line x1="14" y1="11" x2="14" y2="17" />
+            </svg>
+          );
+        }
+        if (name === "plane") {
+          return (
+            <svg {...svgProps}>
+              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+            </svg>
+          );
+        }
+        if (name === "building") {
+          return (
+            <svg {...svgProps}>
+              <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
+              <line x1="9" y1="22" x2="9" y2="16" />
+              <line x1="15" y1="22" x2="15" y2="16" />
+              <line x1="9" y1="16" x2="15" y2="16" />
+              <path d="M8 6h.01M16 6h.01M8 10h.01M16 10h.01" />
+            </svg>
+          );
+        }
+        if (name === "pin") {
+          return (
+            <svg {...svgProps}>
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+          );
+        }
+        if (name === "link") {
+          return (
+            <svg {...svgProps}>
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+            </svg>
+          );
+        }
+        if (name === "copy") {
+          return (
+            <svg {...svgProps}>
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>
+          );
+        }
+        if (name === "search") {
+          return (
+            <svg {...svgProps}>
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          );
+        }
+        if (name === "phone") {
+          return (
+            <svg {...svgProps}>
+              <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+              <line x1="12" y1="18" x2="12" y2="18" />
+            </svg>
+          );
+        }
+        if (name === "volume") {
+          return (
+            <svg {...svgProps}>
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+            </svg>
+          );
+        }
+        if (name === "exchange") {
+          return (
+            <svg {...svgProps}>
+              <path d="M17 3L21 7L17 11M3 17L7 21L3 25" />
+              <line x1="21" y1="7" x2="3" y2="7" />
+              <line x1="3" y1="17" x2="21" y2="17" />
+            </svg>
+          );
+        }
+        if (name === "alert") {
+          return (
+            <svg {...svgProps}>
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+          );
+        }
+        if (name === "check-square") {
+          return (
+            <svg {...svgProps}>
+              <polyline points="9 11 12 14 22 4" />
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+            </svg>
+          );
+        }
+        if (name === "square") {
+          return (
+            <svg {...svgProps}>
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+            </svg>
+          );
+        }
+        if (name === "check-circle") {
+          return (
+            <svg {...svgProps}>
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+              <polyline points="22 4 12 14.01 9 11.01" />
+            </svg>
+          );
+        }
+        if (name === "refresh") {
+          return (
+            <svg {...svgProps}>
+              <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+            </svg>
+          );
+        }
+        return null;
+      };
+
+      // Safe expression evaluator for numeric calculators
+      function safeEvaluate(expr) {
+        try {
+          const sanitized = expr.replace(/[^0-9+\-*/.]/g, "");
+          if (!sanitized) return "";
+          const result = new Function(`return (${sanitized})`)();
+          if (result !== undefined && !isNaN(result) && isFinite(result)) {
+            return Math.round(result).toString();
+          }
+        } catch (e) {}
+        return expr;
+      }
+
+      // ==========================================
+      // MAIN APP ROOT COMPONENT
+      // ==========================================
+      function App() {
+        const [activeTab, setActiveTab] = useState("itinerary");
+
+        // React State for Persistence
+        const [luggage, setLuggage] = useState([]);
+        const [expenses, setExpenses] = useState([]);
+        const [phrases, setPhrases] = useState([]);
+        const [exchangeRate, setExchangeRate] = useState(0.024);
+        const [appLoaded, setAppLoaded] = useState(false);
+
+        useEffect(() => {
+          try {
+            const storedLuggage = localStorage.getItem("busan_companion_luggage_v3");
+            setLuggage(storedLuggage ? JSON.parse(storedLuggage) : initialLuggageCategories);
+
+            const storedExpenses = localStorage.getItem("busan_companion_expenses_v2");
+            setExpenses(storedExpenses ? JSON.parse(storedExpenses) : []);
+
+            const storedPhrases = localStorage.getItem("busan_companion_phrases_v2");
+            setPhrases(storedPhrases ? JSON.parse(storedPhrases) : initialPhrases);
+
+            const storedRate = localStorage.getItem("busan_companion_rate_v2");
+            if (storedRate) setExchangeRate(parseFloat(storedRate));
+          } catch (e) {
+            console.error("Localstorage failed, booting fallback states", e);
+            setLuggage(initialLuggageCategories);
+            setPhrases(initialPhrases);
+          } finally {
+            setAppLoaded(true);
+          }
+        }, []);
+
+        const saveLuggage = (data) => {
+          setLuggage(data);
+          localStorage.setItem("busan_companion_luggage_v3", JSON.stringify(data));
+        };
+
+        const saveExpenses = (data) => {
+          setExpenses(data);
+          localStorage.setItem("busan_companion_expenses_v2", JSON.stringify(data));
+        };
+
+        const savePhrases = (data) => {
+          setPhrases(data);
+          localStorage.setItem("busan_companion_phrases_v2", JSON.stringify(data));
+        };
+
+        const saveExchangeRate = (rate) => {
+          setExchangeRate(rate);
+          localStorage.setItem("busan_companion_rate_v2", rate.toString());
+        };
+
+        const handleToggleLuggageItem = (categoryId, itemId) => {
+          const next = luggage.map((cat) => {
+            if (cat.id === categoryId) {
+              return {
+                ...cat,
+                items: cat.items.map((item) => {
+                  if (item.id === itemId) return { ...item, checked: !item.checked };
+                  return item;
+                })
+              };
+            }
+            return cat;
+          });
+          saveLuggage(next);
+        };
+
+        const handleResetLuggage = () => {
+          if (window.confirm("確定要重設所有行李收納進度嗎？")) {
+            const next = luggage.map((cat) => ({
+              ...cat,
+              items: cat.items.map((item) => ({ ...item, checked: false }))
+            }));
+            saveLuggage(next);
+          }
+        };
+
+        const handleCheckAllLuggage = () => {
+          const next = luggage.map((cat) => ({
+            ...cat,
+            items: cat.items.map((item) => ({ ...item, checked: true }))
+          }));
+          saveLuggage(next);
+        };
+
+        const handleAddExpense = (spotId, day, amount, description) => {
+          const newRecord = {
+            id: `exp-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+            spotId,
+            day,
+            amount,
+            description
+          };
+          saveExpenses([...expenses, newRecord]);
+        };
+
+        const handleDeleteExpense = (expenseId) => {
+          saveExpenses(expenses.filter((e) => e.id !== expenseId));
+        };
+
+        const handleAddPhrase = (chinese, korean) => {
+          const newPhrase = {
+            id: `phr-${Date.now()}`,
+            chinese,
+            korean,
+            category: "我的自訂"
+          };
+          savePhrases([...phrases, newPhrase]);
+        };
+
+        const handleDeletePhrase = (phraseId) => {
+          savePhrases(phrases.filter((p) => p.id !== phraseId));
+        };
+
+        if (!appLoaded) {
+          return (
+            <div className="min-h-screen bg-[#FAF5EB] flex flex-col justify-center items-center p-6 text-center select-none">
+              <div className="text-4xl animate-bounce mb-3">🧭</div>
+              <h2 className="font-serif font-black text-lg text-[#3F2B20]">釜山日和・加載助手資料中</h2>
+              <p className="text-xs text-[#8C7E74] mt-1 font-medium">正在載入專屬的 4 天 3 晝全功能離線隨同旅記...</p>
+            </div>
+          );
+        }
+
+        return (
+          <div className="min-h-screen bg-[#FAF5EB] py-0 md:py-6 relative flex flex-col items-center">
+            {/* Phone template frame centered */}
+            <div className="w-full max-w-md min-h-screen md:min-h-[850px] md:h-[850px] bg-[#FAF5EB] md:rounded-[36px] border-0 md:border-[6px] md:border-[#E8E1D5] md:shadow-2xl relative flex flex-col overflow-hidden">
+              
+              {/* Retro App Header with Sticky Navigation directly attached */}
+              <div className="sticky top-0 z-50 bg-[#FFFDF9] border-b border-[#E8E1D5]/40 flex-shrink-0">
+                <header className="px-5 pt-5 pb-3.5 flex justify-between items-end">
+                  <div className="space-y-1.5 select-none">
+                    <h1 className="font-serif font-black text-2xl tracking-tight text-[#3F2B20] leading-none flex items-center gap-1.5">
+                      四美同遊蔚藍海岸
+                    </h1>
+                    <div className="flex items-center gap-2">
+                       <span className="text-[10px] font-black uppercase text-white bg-[#A47551] rounded-sm px-1.5 py-0.5 tracking-wider">BUSAN</span>
+                       <p className="text-[11px] font-bold text-[#8C7E74]">2026・4天3夜隨行旅記</p>
+                    </div>
+                  </div>
+                  <div className="text-right select-none">
+                    <div className="h-9 w-9 rounded-full bg-[#768A7A] text-white flex items-center justify-center font-bold text-xs shadow-3xs cursor-pointer" title="目前地區：釜山">
+                      KR
+                    </div>
+                  </div>
+                </header>
+
+                {/* 5-Menu Floating Top Navigation Bar (Fixed on Top to NEVER disappear) */}
+                <nav className="flex justify-between items-center px-2 py-1 bg-[#FFFDF9] border-t border-[#FAF5EB] select-none">
+                  {[
+                    { id: "itinerary", icon: "🧭", label: "行程助手" },
+                    { id: "finance", icon: "💰", label: "累積消費" },
+                    { id: "luggage", icon: "🎒", label: "行李進度" },
+                    { id: "translator", icon: "🗣️", label: "隨身句庫" },
+                    { id: "basic", icon: "🏢", label: "基本資訊" }
+                  ].map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-xl transition-all cursor-pointer ${
+                        activeTab === tab.id
+                          ? "bg-[#FAF5EB] text-[#A47551] font-black scale-102"
+                          : "text-[#8C7E74] hover:bg-[#FAF5EB]/40 hover:text-[#3F2B20] font-semibold"
+                      }`}
+                    >
+                      <span className="text-lg leading-none mb-1">{tab.icon}</span>
+                      <span className="text-[10px] sm:text-[11px] tracking-tight">{tab.label}</span>
+                    </button>
+                  ))}
+                </nav>
+              </div>
+
+              {/* Main Content Render View Block */}
+              <div className="flex-1 overflow-y-auto no-scrollbar p-5 pb-16">
+                {activeTab === "itinerary" && (
+                  <ItineraryTab
+                    expenses={expenses}
+                    addExpense={handleAddExpense}
+                  />
+                )}
+                {activeTab === "finance" && (
+                  <FinanceTab
+                    expenses={expenses}
+                    exchangeRate={exchangeRate}
+                    setManualExchangeRate={saveExchangeRate}
+                    deleteExpense={handleDeleteExpense}
+                  />
+                )}
+                {activeTab === "luggage" && (
+                  <LuggageTab
+                    categories={luggage}
+                    toggleItem={handleToggleLuggageItem}
+                    resetAll={handleResetLuggage}
+                    checkAll={handleCheckAllLuggage}
+                  />
+                )}
+                {activeTab === "translator" && (
+                  <TranslatorTab
+                    phrases={phrases}
+                    addPhrase={handleAddPhrase}
+                    deletePhrase={handleDeletePhrase}
+                  />
+                )}
+                {activeTab === "basic" && <BasicInfoTab />}
+              </div>
+
+              {/* Little Footer Status Rail */}
+              <div className="absolute bottom-0 inset-x-0 bg-[#FFFDF9] border-t border-[#E8E1D5]/30 text-center py-1.5 select-none z-40">
+                <span className="text-[9px] font-mono text-gray-400 font-bold tracking-widest uppercase">
+                  Busan Daily Companion v4.0.0 • Local Persistence Active
+                </span>
+              </div>
+
+            </div>
+          </div>
+        );
+      }
+
+      // ==========================================
+      // TAB SUB-COMPONENTS
+      // ==========================================
+
+      // 1. ITINERARY TAB COMPONENT
+      function ItineraryTab({ expenses, addExpense }) {
+        const [selectedDay, setSelectedDay] = useState(1);
+        const [isRainyDay, setIsRainyDay] = useState(false);
+        const [dayNotes, setDayNotes] = useState(() => {
+          try {
+            const saved = localStorage.getItem("busan_companion_day_notes_v2");
+            return saved ? JSON.parse(saved) : {};
+          } catch(e) { return {}; }
+        });
+
+        // Current spot we are adding quick expense for
+        const [quickExpenseSpotId, setQuickExpenseSpotId] = useState(null);
+        const [expenseDesc, setExpenseDesc] = useState("");
+        const [expenseAmount, setExpenseAmount] = useState("");
+        const [isKeypadOpen, setIsKeypadOpen] = useState(false);
+
+        const currentDayData = initialItinerary.find((d) => d.day === selectedDay) || initialItinerary[0];
+
+        const handleSaveNotes = (text) => {
+          const updated = { ...dayNotes, [selectedDay]: text };
+          setDayNotes(updated);
+          localStorage.setItem("busan_companion_day_notes_v2", JSON.stringify(updated));
+        };
+
+        const handleKeypadPress = (key) => {
+          if (key === "C") {
+            setExpenseAmount("");
+          } else if (key === "backspace") {
+            setExpenseAmount((prev) => prev.slice(0, -1));
+          } else if (key === "=") {
+            setExpenseAmount((prev) => safeEvaluate(prev));
+          } else if (["+", "-", "*", "/"].includes(key)) {
+            setExpenseAmount((prev) => {
+              const lastChar = prev.slice(-1);
+              if (["+", "-", "*", "/"].includes(lastChar)) {
+                return prev.slice(0, -1) + key;
+              }
+              return prev + key;
+            });
+          } else {
+            setExpenseAmount((prev) => prev + key);
+          }
+        };
+
+        const activeQuickSpot = currentDayData.spots.find(s => s.id === quickExpenseSpotId);
+
+        return (
+          <div className="space-y-5 pb-10">
+            {/* Day Selector Buttons */}
+            <div className="flex gap-1.5 bg-[#F0EAE1] rounded-2xl p-1 border border-[#DCD5C9] select-none">
+              {initialItinerary.map((dayData) => (
+                <button
+                  key={dayData.day}
+                  onClick={() => {
+                    setSelectedDay(dayData.day);
+                    setIsRainyDay(false);
+                    setQuickExpenseSpotId(null);
+                  }}
+                  className={`flex-1 py-2 rounded-xl transition-all font-black text-xs cursor-pointer ${
+                    selectedDay === dayData.day && !isRainyDay
+                      ? "bg-[#768A7A] text-white shadow-sm"
+                      : "text-[#8C7E74] hover:text-[#3F2B20]"
+                  }`}
+                >
+                  D{dayData.day}
+                </button>
+              ))}
+              <button
+                onClick={() => {
+                  setIsRainyDay(true);
+                  setQuickExpenseSpotId(null);
+                }}
+                className={`flex-1 py-2 rounded-xl transition-all font-black text-xs cursor-pointer ${
+                  isRainyDay
+                    ? "bg-[#8D5B4C] text-white shadow-sm"
+                    : "text-[#8A635B] hover:text-[#8D5B4C]"
+                }`}
+              >
+                ☔ 雨備
+              </button>
+            </div>
+
+            {/* Banner Overview details */}
+            <div className="bg-[#FFFDF9] rounded-2xl p-4.5 border border-[#E8E1D5] shadow-xs select-none">
+              <span className="text-[10px] font-black uppercase text-gray-400 font-mono tracking-wider">
+                {isRainyDay ? "Rainy Plan Alternate" : `Day ${selectedDay} • Schedule`}
+              </span>
+              <h2 className="font-serif font-black text-lg text-[#3F2B20] mt-0.5 leading-snug">
+                {isRainyDay ? "海雲台室內/備選雨備好去處（不畏風雨）" : currentDayData.title}
+              </h2>
+              <p className="text-[11.5px] font-semibold text-[#8C7E74] mt-1.5 leading-relaxed bg-[#FAF5EB] p-2.5 rounded-xl border border-[#DCD5C9]/30">
+                {isRainyDay ? "💡 若遇到海雲台海岸風大或下雨，可採取以下室內特色景點備案" : `🚌 安排：${currentDayData.transportInfo}`}
+              </p>
+            </div>
+
+            {/* Render Spots Timeline */}
+            {!isRainyDay ? (
+              <div className="relative border-l border-[#A47551]/30 ml-3.5 pl-5.5 space-y-6">
+                {currentDayData.spots.map((spot, idx) => {
+                  const associatedExpenses = expenses.filter(e => e.spotId === spot.id);
+                  const totalSpotExpense = associatedExpenses.reduce((sum, e) => sum + e.amount, 0);
+
+                  return (
+                    <div key={spot.id} className="relative group">
+                      {/* Left Dot bullet with numbering inside */}
+                      <span className="absolute -left-[31px] top-1 bg-[#A47551] text-white font-mono text-[10px] font-black h-5.5 w-5.5 rounded-full flex items-center justify-center border-4 border-[#FAF5EB] shadow-xs select-none">
+                        {idx + 1}
+                      </span>
+
+                      <div className="bg-[#FFFDF9] rounded-2xl p-4 border border-[#E8E1D5] hover:border-[#A47551]/35 transition-all space-y-3 shadow-xs">
+                        {/* Spot header Row */}
+                        <div className="flex justify-between items-start gap-4">
+                          <div>
+                            <span className="font-mono font-black text-[11px] text-[#A47551] block uppercase">{spot.time}</span>
+                            <h3 className="font-serif font-black text-[#3F2B20] text-base leading-snug mt-0.5">{spot.title}</h3>
+                            <p className="text-[11px] font-bold text-[#8C7E74] tracking-wide mt-1">🎯 {spot.purpose}</p>
+                          </div>
+                          
+                          {/* Map trigger */}
+                          {spot.naverMapUrl && (
+                            <a
+                              href={spot.naverMapUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="h-8.5 w-8.5 rounded-xl bg-[#FAF5EB] hover:bg-[#768A7A]/10 border border-[#E8E1D5] hover:border-[#768A7A]/40 text-[#4D6352] flex items-center justify-center transition-colors shadow-3xs cursor-pointer select-none shrink-0"
+                              title="導航連結 (Naver Map)"
+                            >
+                              <SvgIcon name="link" className="w-4 h-4 text-[#768A7A]" />
+                            </a>
+                          )}
+                        </div>
+
+                        {/* Associated sub-notes block */}
+                        {spot.notes && spot.notes.length > 0 && (
+                          <div className="pt-2 bg-[#FAF5EB]/50 p-3 rounded-xl border border-[#E8E1D5]/35 text-[12px] text-[#3F2B20] space-y-1.5 font-semibold leading-relaxed">
+                            {spot.notes.map((note, noteIdx) => (
+                              <p key={noteIdx} className="flex items-start gap-1">
+                                <span className="text-[#A47551] mt-0.5">•</span>
+                                <span className="flex-1 break-words">{note}</span>
+                              </p>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Spend history in Spot */}
+                        {associatedExpenses.length > 0 && (
+                          <div className="p-2.5 rounded-xl bg-orange-50/45 border border-orange-100 flex items-center justify-between text-xs font-mono font-semibold text-[#8D5B4C] select-none">
+                            <span>💸 已記帳：</span>
+                            <span className="font-bold text-[13px]">{totalSpotExpense.toLocaleString()} ₩</span>
+                          </div>
+                        )}
+
+                        {/* Quick Ledger button inside spot */}
+                        <div className="pt-2 text-right">
+                          <button
+                            onClick={() => {
+                              if (quickExpenseSpotId === spot.id) {
+                                setQuickExpenseSpotId(null);
+                                setIsKeypadOpen(false);
+                              } else {
+                                setQuickExpenseSpotId(spot.id);
+                                setExpenseDesc(`餐飲：${spot.title.split('｜')[0].split('(')[0]}`);
+                                setExpenseAmount("");
+                                setIsKeypadOpen(true);
+                              }
+                            }}
+                            className={`px-3 py-1.5 rounded-lg text-[10.5px] font-black tracking-wide border transition-all cursor-pointer select-none ${
+                              quickExpenseSpotId === spot.id
+                                ? "bg-red-50 border-red-200 text-red-500"
+                                : "bg-[#FAF5EB] hover:bg-[#A47551]/10 border-[#E8E1D5]/70 hover:border-[#A47551]/30 text-[#8C7E74] hover:text-[#A47551]"
+                            }`}
+                          >
+                            {quickExpenseSpotId === spot.id ? "❌ 關閉記帳" : "✏️ 記一筆此處花費"}
+                          </button>
+                        </div>
+
+                        {/* Custom quick ledger popup keypad */}
+                        {quickExpenseSpotId === spot.id && isKeypadOpen && (
+                          <div className="overflow-hidden bg-[#FAF5EB] p-3 rounded-2xl border border-[#E2D9C8] space-y-2.5 mt-2.5">
+                            {/* Input details */}
+                            <div className="flex gap-1.5 mb-1.5">
+                              <input
+                                type="text"
+                                placeholder="花費說明 (例: 五花肉)"
+                                value={expenseDesc}
+                                onChange={(e) => setExpenseDesc(e.target.value)}
+                                className="flex-1 px-2.5 py-1.5 border border-[#E8E1D5] bg-white rounded-lg text-xs placeholder-gray-400 text-charcoal font-bold font-sans"
+                              />
+                            </div>
+
+                            {/* Expression displaying */}
+                            <div className="flex items-center justify-between px-3 py-2.5 bg-white rounded-xl border border-[#E9E1D5] text-sm font-mono font-black text-[#3F2B20]">
+                              <span className="text-[#8C7E74] select-none font-sans text-xs sm:text-sm">目前算式：</span>
+                              <span className="text-base sm:text-lg tracking-wide text-[#768A7A] font-extrabold max-w-xs overflow-x-auto whitespace-nowrap">
+                                {expenseAmount || "0"}
+                              </span>
+                            </div>
+
+                            {/* Enriched keypad fonts (as requested: "加大簡易計算機的所有字體") */}
+                            <div className="grid grid-cols-4 gap-1.5 text-lg sm:text-xl font-extrabold font-mono select-none">
+                              {/* Row 1 */}
+                              <button type="button" onClick={() => handleKeypadPress("7")} className="py-2.5 bg-white hover:bg-[#FAF5EB]/50 text-[#3F2B20] text-lg sm:text-xl font-extrabold rounded-lg border border-[#E8E1D5]/60 active:scale-95 transition-transform cursor-pointer">7</button>
+                              <button type="button" onClick={() => handleKeypadPress("8")} className="py-2.5 bg-white hover:bg-[#FAF5EB]/50 text-[#3F2B20] text-lg sm:text-xl font-extrabold rounded-lg border border-[#E8E1D5]/60 active:scale-95 transition-transform cursor-pointer">8</button>
+                              <button type="button" onClick={() => handleKeypadPress("9")} className="py-2.5 bg-white hover:bg-[#FAF5EB]/50 text-[#3F2B20] text-lg sm:text-xl font-extrabold rounded-lg border border-[#E8E1D5]/60 active:scale-95 transition-transform cursor-pointer">9</button>
+                              <button type="button" onClick={() => handleKeypadPress("/")} className="py-2.5 bg-[#F0EAE1] hover:bg-[#A47551]/10 text-[#A47551] text-lg sm:text-xl font-extrabold rounded-lg border border-[#DCD5C9] active:scale-95 transition-transform cursor-pointer">÷</button>
+
+                              {/* Row 2 */}
+                              <button type="button" onClick={() => handleKeypadPress("4")} className="py-2.5 bg-white hover:bg-[#FAF5EB]/50 text-[#3F2B20] text-lg sm:text-xl font-extrabold rounded-lg border border-[#E8E1D5]/60 active:scale-95 transition-transform cursor-pointer">4</button>
+                              <button type="button" onClick={() => handleKeypadPress("5")} className="py-2.5 bg-white hover:bg-[#FAF5EB]/50 text-[#3F2B20] text-lg sm:text-xl font-extrabold rounded-lg border border-[#E8E1D5]/60 active:scale-95 transition-transform cursor-pointer">5</button>
+                              <button type="button" onClick={() => handleKeypadPress("6")} className="py-2.5 bg-white hover:bg-[#FAF5EB]/50 text-[#3F2B20] text-lg sm:text-xl font-extrabold rounded-lg border border-[#E8E1D5]/60 active:scale-95 transition-transform cursor-pointer">6</button>
+                              <button type="button" onClick={() => handleKeypadPress("*")} className="py-2.5 bg-[#F0EAE1] hover:bg-[#A47551]/10 text-[#A47551] text-lg sm:text-xl font-extrabold rounded-lg border border-[#DCD5C9] active:scale-95 transition-transform cursor-pointer">×</button>
+
+                              {/* Row 3 */}
+                              <button type="button" onClick={() => handleKeypadPress("1")} className="py-2.5 bg-white hover:bg-[#FAF5EB]/50 text-[#3F2B20] text-lg sm:text-xl font-extrabold rounded-lg border border-[#E8E1D5]/60 active:scale-95 transition-transform cursor-pointer">1</button>
+                              <button type="button" onClick={() => handleKeypadPress("2")} className="py-2.5 bg-white hover:bg-[#FAF5EB]/50 text-[#3F2B20] text-lg sm:text-xl font-extrabold rounded-lg border border-[#E8E1D5]/60 active:scale-95 transition-transform cursor-pointer">2</button>
+                              <button type="button" onClick={() => handleKeypadPress("3")} className="py-2.5 bg-white hover:bg-[#FAF5EB]/50 text-[#3F2B20] text-lg sm:text-xl font-extrabold rounded-lg border border-[#E8E1D5]/60 active:scale-95 transition-transform cursor-pointer">3</button>
+                              <button type="button" onClick={() => handleKeypadPress("-")} className="py-2.5 bg-[#F0EAE1] hover:bg-[#A47551]/10 text-[#A47551] text-lg sm:text-xl font-extrabold rounded-lg border border-[#DCD5C9] active:scale-95 transition-transform cursor-pointer">-</button>
+
+                              {/* Row 4 */}
+                              <button type="button" onClick={() => handleKeypadPress("C")} className="py-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg border border-red-200 active:scale-95 transition-transform cursor-pointer font-sans text-sm sm:text-base font-black">清除</button>
+                              <button type="button" onClick={() => handleKeypadPress("0")} className="py-2.5 bg-white hover:bg-[#FAF5EB]/50 text-[#3F2B20] text-lg sm:text-xl font-extrabold rounded-lg border border-[#E8E1D5]/60 active:scale-95 transition-transform cursor-pointer">0</button>
+                              <button type="button" onClick={() => handleKeypadPress("backspace")} className="py-2.5 bg-white hover:bg-[#FAF5EB]/50 text-[#3F2B20] text-lg sm:text-xl font-extrabold rounded-lg border border-[#E8E1D5]/60 active:scale-95 transition-transform flex items-center justify-center cursor-pointer">⌫</button>
+                              <button type="button" onClick={() => handleKeypadPress("+")} className="py-2.5 bg-[#F0EAE1] hover:bg-[#A47551]/10 text-[#A47551] text-lg sm:text-xl font-extrabold rounded-lg border border-[#DCD5C9] active:scale-95 transition-transform cursor-pointer">+</button>
+                            </div>
+
+                            {/* Controllers */}
+                            <div className="flex gap-2 text-sm sm:text-base font-black select-none">
+                              <button
+                                type="button"
+                                onClick={() => handleKeypadPress("=")}
+                                className="flex-2 py-3 bg-[#E8E1D5] hover:bg-[#E2D9C8] text-[#3F2B20] rounded-xl border border-[#D4C9B6] active:scale-95 transition-all cursor-pointer font-sans text-xs sm:text-sm font-black"
+                              >
+                                ＝ 計算
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const evaluated = safeEvaluate(expenseAmount);
+                                  const num = parseFloat(evaluated);
+                                  if (!isNaN(num) && num > 0) {
+                                    addExpense(spot.id, selectedDay, num, expenseDesc.trim() || spot.title);
+                                    setQuickExpenseSpotId(null);
+                                    setIsKeypadOpen(false);
+                                  }
+                                }}
+                                className="flex-2 py-3 bg-[#7251B5] hover:bg-[#5E3EA1] text-white rounded-xl active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-1 shadow-3xs font-sans font-black text-xs sm:text-sm"
+                              >
+                                <span>✔ 確定勾選</span>
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              // Rainy plan backup elements
+              <div className="space-y-4">
+                {[
+                  {
+                    title: "海雲台 ClubD OASIS 海景溫泉 SPA 水上樂園",
+                    purpose: "LCT 摩天大樓內的奢華頂級市內暖冬室內溫泉、汗蒸幕 ♨️",
+                    naverMapUrl: "https://naver.me/xw9sFv18",
+                    notes: ["主打可以一邊看著廣安大橋與湛藍尾浦海景，一邊享受室內頂級汗蒸幕與露天溫泉泡湯！", "內部甚至有室內溫水大水上滑水道，無論颳風、暴雨或低溫都能在這裡度過一整天極致放鬆時光！"]
+                  },
+                  {
+                    title: "新世界百貨 Centum City 旗艦店 & SPA LAND 汗蒸幕",
+                    purpose: "全世界最大百貨公司 + 號稱釜山五星級豪華頂級汗蒸幕 🧖‍♀️",
+                    naverMapUrl: "https://naver.me/xD6GjI6O",
+                    notes: ["SPA LAND 採用地底深處天然溫泉水，擁有22個不同特色溫度的溫泉療養池及13個多國風情特色蒸房，室內極致奢華舒適！", "可搭乘地鐵2號線直達「Centum City」站，出站即可開始逛街、看電影、大啖美食廣場，玩累了直接入內舒壓桑拿！"]
+                  },
+                  {
+                    title: "Museum 1 海雲台數字媒體美術館",
+                    purpose: "視覺效果極具震撼力的室內多媒體科幻奇觀光影藝術展 🎨",
+                    naverMapUrl: "https://naver.me/5bdaPz65",
+                    notes: ["位於 Centum City 旁，佔地達 700 多坪，利用全場大面積密集 LED 螢幕投射出夢幻璀璨的現代數字媒體藝術！", "完全是雨天散步打卡、文藝青年探索現代新媒體展覽的極佳溫暖去處。"]
+                  }
+                ].map((backupSpot, bidx) => (
+                  <div key={bidx} className="bg-[#FFFDF9] rounded-2xl p-4.5 border border-[#E8E1D5] space-y-3 shadow-xs">
+                    <div className="flex justify-between items-start gap-4">
+                      <div>
+                        <span className="text-[10px] bg-[#8D5B4C]/10 text-[#8D5B4C] font-black px-2 py-0.5 rounded uppercase font-mono">
+                          雨備景點 {bidx + 1}
+                        </span>
+                        <h3 className="font-serif font-black text-[#3F2B20] text-[15px] sm:text-base tracking-tight leading-snug mt-1.5">{backupSpot.title}</h3>
+                        <p className="text-[11px] font-bold text-[#8C7E74] tracking-wide mt-1">🎯 {backupSpot.purpose}</p>
+                      </div>
+                      
+                      {backupSpot.naverMapUrl && (
+                        <a
+                          href={backupSpot.naverMapUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="h-8.5 w-8.5 rounded-xl bg-[#FAF5EB] hover:bg-[#8D5B4C]/10 border border-[#E8E1D5] hover:border-[#8D5B4C]/30 text-[#8D5B4C] flex items-center justify-center transition-all shadow-3xs cursor-pointer select-none shrink-0"
+                        >
+                          <SvgIcon name="link" className="w-4 h-4 text-[#8D5B4C]" />
+                        </a>
+                      )}
+                    </div>
+
+                    <div className="bg-[#FAF5EB]/50 p-3 rounded-xl border border-[#E8E1D5]/30 text-[11.5px] text-[#3F2B20] space-y-1.5 font-semibold leading-relaxed">
+                      {backupSpot.notes.map((n, ni) => (
+                        <p key={ni} className="flex items-start gap-1">
+                          <span className="text-[#8D5B4C] mt-0.5">•</span>
+                          <span className="flex-1 break-words">{n}</span>
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Note taking text area */}
+            <div className="bg-[#FFFDF9] rounded-2xl p-4 border border-[#E8E1D5] shadow-xs space-y-3 select-text">
+              <h3 className="font-serif font-black text-[15px] text-[#3F2B20]">📝 Day {selectedDay} 航行程隨手筆記 / 共用備忘</h3>
+              <textarea
+                value={dayNotes[selectedDay] || ""}
+                onChange={(e) => handleSaveNotes(e.target.value)}
+                placeholder="在此填寫本段行程預備提醒事項、餐廳預約代碼、待買清單等..."
+                className="w-full text-xs sm:text-sm bg-[#FAF5EB] border border-[#E8E1D5] rounded-xl px-3 py-2.5 text-[#3F2B20] placeholder-gray-400 font-medium focus:outline-none focus:border-[#A47551] flex-1 leading-relaxed shadow-[inset_0_1px_2px_rgba(0,0,0,0.01)]"
+                rows={3}
+              />
+            </div>
+          </div>
+        );
+      }
+
+      // 2. FINANCE TAB COMPONENT
+      function FinanceTab({ expenses, exchangeRate, setManualExchangeRate, deleteExpense }) {
+        const [subTab, setSubTab] = useState("spending");
+
+        // Converter states
+        const [krwInput, setKrwInput] = useState("10000");
+        const [twdInput, setTwdInput] = useState((10000 * exchangeRate).toFixed(0));
+        const [isKeypadOpen, setIsKeypadOpen] = useState(false);
+
+        const updateTwdFromExpression = (expr) => {
+          const evaluated = safeEvaluate(expr);
+          const num = parseFloat(evaluated);
+          if (!isNaN(num)) {
+            setTwdInput(Math.round(num * exchangeRate).toString());
+          } else {
+            setTwdInput("");
+          }
+        };
+
+        const handleKeypadPress = (key) => {
+          if (key === "C") {
+            setKrwInput("");
+            setTwdInput("");
+          } else if (key === "backspace") {
+            setKrwInput((prev) => {
+              const nextVal = prev.slice(0, -1);
+              updateTwdFromExpression(nextVal);
+              return nextVal;
+            });
+          } else if (key === "=") {
+            setKrwInput((prev) => {
+              const evaluated = safeEvaluate(prev);
+              updateTwdFromExpression(evaluated);
+              return evaluated;
+            });
+          } else if (["+", "-", "*", "/"].includes(key)) {
+            setKrwInput((prev) => {
+              const lastChar = prev.slice(-1);
+              if (["+", "-", "*", "/"].includes(lastChar)) {
+                return prev.slice(0, -1) + key;
+              }
+              return prev + key;
+            });
+          } else {
+            setKrwInput((prev) => {
+              const nextVal = prev + key;
+              updateTwdFromExpression(nextVal);
+              return nextVal;
+            });
+          }
+        };
+
+        // Budget numbers
+        const dailyBudgetLimit = 150000;
+        const exchangeRateDisplay = Math.round(1 / exchangeRate);
+
+        const totalSpentKRW = expenses.reduce((sum, e) => sum + e.amount, 0);
+        const totalSpentTWD = Math.round(totalSpentKRW * exchangeRate);
+
+        const getSubtotalForDay = (dayNum) => {
+          return expenses.filter((e) => e.day === dayNum).reduce((sum, e) => sum + e.amount, 0);
+        };
+
+        return (
+          <div className="space-y-5 pb-10">
+            {/* Top Sub tabs toggle selection */}
+            <div className="flex bg-[#F0EAE1] rounded-2xl p-1 border border-[#DCD5C9] select-none">
+              <button
+                onClick={() => setSubTab("spending")}
+                className={`flex-1 py-2.5 rounded-xl transition-all font-black text-xs cursor-pointer ${
+                  subTab === "spending" ? "bg-[#768A7A] text-white shadow-sm" : "text-[#8C7E74] hover:text-[#3F2B20]"
+                }`}
+              >
+                📊 累積統計明細
+              </button>
+              <button
+                onClick={() => setSubTab("exchange")}
+                className={`flex-1 py-2.5 rounded-xl transition-all font-black text-xs cursor-pointer ${
+                  subTab === "exchange" ? "bg-[#768A7A] text-white shadow-sm" : "text-[#8C7E74] hover:text-[#3F2B20]"
+                }`}
+              >
+                ⚖️ 韓元快速算盤
+              </button>
+            </div>
+
+            {subTab === "spending" && (
+              <div className="space-y-4 animate-fade-in">
+                {/* Visual Overview card */}
+                <div className="bg-[#FFFDF9] rounded-2xl p-5 border border-[#E8E1D5] shadow-xs select-none">
+                  <span className="text-[10px] tracking-widest font-black uppercase text-gray-400">Ledger Overview</span>
+                  <div className="flex justify-between items-baseline mt-1.5">
+                    <h3 className="font-serif font-black text-3xl text-[#3F2B20] tracking-tight">
+                      {totalSpentKRW.toLocaleString()} <span className="font-sans text-lg font-bold text-gray-400">₩</span>
+                    </h3>
+                    <span className="text-sm font-semibold text-[#8C7E74] font-mono">
+                      (台幣 NT$ {totalSpentTWD.toLocaleString()})
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-[#8C7E74] mt-2 font-semibold">
+                    💡 本預算追蹤機制以 <b>15萬 韓元/人/日</b> 作為全組推薦基本餐飲零售支出限額。
+                  </p>
+                </div>
+
+                {/* Day subtotal progresses (as requested: "改為 Day數字 (日期)") */}
+                <div className="bg-[#FFFDF9] rounded-2xl p-5 border border-[#E8E1D5] shadow-xs space-y-4">
+                  <h4 className="font-serif font-black text-[15px] border-b border-[#FAF5EB] pb-2">📅 每日累積小計明細</h4>
+                  {[1, 2, 3, 4].map((dayNum) => {
+                    const daySum = getSubtotalForDay(dayNum);
+                    const sumPct = Math.min(Math.round((daySum / dailyBudgetLimit) * 100), 100);
+                    const dayDates = ["6/22", "6/23", "6/24", "6/25"];
+
+                    return (
+                      <div key={dayNum} className="space-y-1.5">
+                        <div className="flex justify-between items-baseline text-xs">
+                          {/* Corrected Text to match exact request: Day數字 (日期) */}
+                          <span className="font-bold text-[#3F2B20]">Day{dayNum} ({dayDates[dayNum - 1]})</span>
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono font-bold text-[#8C7E74]">{daySum.toLocaleString()} ₩</span>
+                            <span className="text-[10px] text-[#8C7E74] font-medium">
+                              (NT$ {Math.round(daySum * exchangeRate).toLocaleString()})
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Progress visual bar */}
+                        <div className="w-full h-2.5 bg-[#FAF5EB] border border-[#E8E1D5]/40 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all duration-300 ${
+                              daySum > dailyBudgetLimit ? "bg-[#8D5B4C]" : "bg-[#768A7A]"
+                            }`}
+                            style={{ width: `${daySum > 0 ? Math.max(sumPct, 6) : 0}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* History records */}
+                <div className="bg-[#FFFDF9] rounded-2xl p-5 border border-[#E8E1D5] shadow-xs space-y-3.5">
+                  <h4 className="font-serif font-black text-[15px] border-b border-[#FAF5EB] pb-2">📋 所有記帳紀錄 ({expenses.length} 筆)</h4>
+                  {expenses.length > 0 ? (
+                    <div className="divide-y divide-[#FAF5EB] max-h-72 overflow-y-auto pr-1 no-scrollbar text-xs">
+                      {expenses.map((exp) => (
+                        <div key={exp.id} className="py-2.5 flex justify-between items-center gap-4">
+                          <div className="space-y-0.5">
+                            <div className="flex items-center gap-1.5">
+                              <span className="px-1.5 py-0.5 text-[8.5px] font-black text-white bg-[#A7988E] rounded uppercase">D{exp.day}</span>
+                              <span className="font-bold text-[#3F2B20]">{exp.description}</span>
+                            </div>
+                            <span className="text-[10.5px] font-mono text-[#8C7E74]" style={{ fontFeatureSettings: '"tnum"' }}>
+                              {exp.amount.toLocaleString()} ₩ / NT$ {Math.round(exp.amount * exchangeRate)}
+                            </span>
+                          </div>
+                          
+                          <button
+                            onClick={() => deleteExpense(exp.id)}
+                            className="h-7 w-7 rounded-lg bg-red-50 hover:bg-red-100 flex items-center justify-center text-red-500 cursor-pointer transition-colors"
+                          >
+                            <SvgIcon name="trash" className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-center py-6 text-xs text-gray-400 font-semibold select-none">目前尚無任何記帳紀錄，在行程助手中點擊餐廳項目即可快速記帳唷！</p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {subTab === "exchange" && (
+              <div className="space-y-4 animate-fade-in">
+                {/* Conversion card layout */}
+                <div className="bg-[#FFFDF9] rounded-2xl p-5.5 border border-[#E8E1D5] shadow-xs space-y-3">
+                  <h4 className="font-serif font-black text-[15px] border-b border-[#FAF5EB] pb-2 select-none">🧮 韓元 ➔ 新台幣 雙向數值轉換盤</h4>
+                  
+                  {/* Converter Form Inputs */}
+                  <div className="space-y-3">
+                    <div className="relative">
+                      <span className="absolute left-3.5 top-2.5 font-mono text-[10.5px] font-black text-[#A47551] uppercase bg-[#FAF5EB] px-2 py-0.5 rounded select-none">南韓 KRW ₩</span>
+                      <input
+                        type="text"
+                        inputMode="none"
+                        value={krwInput}
+                        onFocus={() => setIsKeypadOpen(true)}
+                        onChange={(e) => handleKrwChange(e.target.value)}
+                        className="w-full text-right text-base font-bold bg-white border border-[#E8E1D5] rounded-xl pr-4 pl-28 py-3 text-[#3F2B20] placeholder-gray-400 font-mono shadow-2xs cursor-pointer"
+                      />
+                    </div>
+                    
+                    <div className="flex justify-center select-none">
+                      <SvgIcon name="exchange" className="w-5 h-5 text-gray-300" />
+                    </div>
+
+                    <div className="relative border-b-0">
+                      <span className="absolute left-3.5 top-2.5 font-mono text-[10.5px] font-black text-teal-600 uppercase bg-[#FAF5EB] px-2 py-0.5 rounded select-none">台幣 TWD $</span>
+                      <input
+                        type="number"
+                        pattern="[0-9]*"
+                        value={twdInput}
+                        onChange={(e) => handleTwdChange(e.target.value)}
+                        className="w-full text-right text-base font-bold bg-white border border-[#E8E1D5] rounded-xl pr-4 pl-28 py-3 text-[#3F2B20] placeholder-gray-400 font-mono shadow-2xs"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Calculator popup */}
+                  {isKeypadOpen && (
+                    <div className="overflow-hidden bg-[#FAF5EB] p-3 rounded-2xl border border-[#E2D9C8] space-y-2.5 shadow-sm mt-3.5">
+                      <div className="flex items-center justify-between px-3 py-2.5 bg-white rounded-xl border border-[#E9E1D5] text-sm font-mono font-black text-[#3F2B20]">
+                        <span className="text-[#8C7E74] select-none font-sans text-xs sm:text-sm">目前算式：</span>
+                        <span className="text-base sm:text-lg tracking-wide text-[#768A7A] font-extrabold max-w-xs overflow-x-auto whitespace-nowrap">
+                          {krwInput || "0"}
+                        </span>
+                      </div>
+
+                      {/* Keypad Buttons using enlarged design */}
+                      <div className="grid grid-cols-4 gap-1.5 text-lg sm:text-xl font-extrabold font-mono select-none">
+                        <button type="button" onClick={() => handleKeypadPress("7")} className="py-3 bg-white hover:bg-[#FAF5EB]/50 text-[#3F2B20] text-lg sm:text-xl font-extrabold rounded-lg border border-[#E8E1D5]/60 active:scale-95 transition-transform cursor-pointer">7</button>
+                        <button type="button" onClick={() => handleKeypadPress("8")} className="py-3 bg-white hover:bg-[#FAF5EB]/50 text-[#3F2B20] text-lg sm:text-xl font-extrabold rounded-lg border border-[#E8E1D5]/60 active:scale-95 transition-transform cursor-pointer">8</button>
+                        <button type="button" onClick={() => handleKeypadPress("9")} className="py-3 bg-white hover:bg-[#FAF5EB]/50 text-[#3F2B20] text-lg sm:text-xl font-extrabold rounded-lg border border-[#E8E1D5]/60 active:scale-95 transition-transform cursor-pointer">9</button>
+                        <button type="button" onClick={() => handleKeypadPress("/")} className="py-3 bg-[#F0EAE1] hover:bg-[#A47551]/10 text-[#A47551] text-lg sm:text-xl font-extrabold rounded-lg border border-[#DCD5C9] active:scale-95 transition-transform cursor-pointer">÷</button>
+
+                        <button type="button" onClick={() => handleKeypadPress("4")} className="py-3 bg-white hover:bg-[#FAF5EB]/50 text-[#3F2B20] text-lg sm:text-xl font-extrabold rounded-lg border border-[#E8E1D5]/60 active:scale-95 transition-transform cursor-pointer">4</button>
+                        <button type="button" onClick={() => handleKeypadPress("5")} className="py-3 bg-white hover:bg-[#FAF5EB]/50 text-[#3F2B20] text-lg sm:text-xl font-extrabold rounded-lg border border-[#E8E1D5]/60 active:scale-95 transition-transform cursor-pointer">5</button>
+                        <button type="button" onClick={() => handleKeypadPress("6")} className="py-3 bg-white hover:bg-[#FAF5EB]/50 text-[#3F2B20] text-lg sm:text-xl font-extrabold rounded-lg border border-[#E8E1D5]/60 active:scale-95 transition-transform cursor-pointer">6</button>
+                        <button type="button" onClick={() => handleKeypadPress("*")} className="py-3 bg-[#F0EAE1] hover:bg-[#A47551]/10 text-[#A47551] text-lg sm:text-xl font-extrabold rounded-lg border border-[#DCD5C9] active:scale-95 transition-transform cursor-pointer">×</button>
+
+                        <button type="button" onClick={() => handleKeypadPress("1")} className="py-3 bg-white hover:bg-[#FAF5EB]/50 text-[#3F2B20] text-lg sm:text-xl font-extrabold rounded-lg border border-[#E8E1D5]/60 active:scale-95 transition-transform cursor-pointer">1</button>
+                        <button type="button" onClick={() => handleKeypadPress("2")} className="py-3 bg-white hover:bg-[#FAF5EB]/50 text-[#3F2B20] text-lg sm:text-xl font-extrabold rounded-lg border border-[#E8E1D5]/60 active:scale-95 transition-transform cursor-pointer">2</button>
+                        <button type="button" onClick={() => handleKeypadPress("3")} className="py-3 bg-white hover:bg-[#FAF5EB]/50 text-[#3F2B20] text-lg sm:text-xl font-extrabold rounded-lg border border-[#E8E1D5]/60 active:scale-95 transition-transform cursor-pointer">3</button>
+                        <button type="button" onClick={() => handleKeypadPress("-")} className="py-3 bg-[#F0EAE1] hover:bg-[#A47551]/10 text-[#A47551] text-lg sm:text-xl font-extrabold rounded-lg border border-[#DCD5C9] active:scale-95 transition-transform cursor-pointer">-</button>
+
+                        <button type="button" onClick={() => handleKeypadPress("C")} className="py-3 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg border border-red-200 active:scale-95 transition-transform cursor-pointer font-sans text-sm sm:text-base font-black">清除</button>
+                        <button type="button" onClick={() => handleKeypadPress("0")} className="py-3 bg-white hover:bg-[#FAF5EB]/50 text-[#3F2B20] text-lg sm:text-xl font-extrabold rounded-lg border border-[#E8E1D5]/60 active:scale-95 transition-transform cursor-pointer">0</button>
+                        <button type="button" onClick={() => handleKeypadPress("backspace")} className="py-3 bg-white hover:bg-[#FAF5EB]/50 text-[#3F2B20] text-lg sm:text-xl font-extrabold rounded-lg border border-[#E8E1D5]/60 active:scale-95 transition-transform flex items-center justify-center cursor-pointer">⌫</button>
+                        <button type="button" onClick={() => handleKeypadPress("+")} className="py-3 bg-[#F0EAE1] hover:bg-[#A47551]/10 text-[#A47551] text-lg sm:text-xl font-extrabold rounded-lg border border-[#DCD5C9] active:scale-95 transition-transform cursor-pointer">+</button>
+                      </div>
+
+                      {/* Controllers */}
+                      <div className="flex gap-2 text-sm sm:text-base font-black select-none">
+                        <button
+                          type="button"
+                          onClick={() => handleKeypadPress("=")}
+                          className="flex-2 py-3 bg-[#E8E1D5] hover:bg-[#E2D9C8] text-[#3F2B20] rounded-xl border border-[#D4C9B6] active:scale-95 transition-all cursor-pointer font-sans text-xs sm:text-sm font-black"
+                        >
+                          ＝ 計算結果
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const solved = safeEvaluate(krwInput);
+                            setKrwInput(solved);
+                            updateTwdFromExpression(solved);
+                            setIsKeypadOpen(false);
+                          }}
+                          className="flex-2 py-3 bg-[#A47551] hover:bg-[#8B613F] text-white rounded-xl active:scale-95 transition-all cursor-pointer flex items-center justify-center shadow-3xs font-sans font-black text-center text-xs sm:text-sm"
+                        >
+                          確定轉換
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setIsKeypadOpen(false)}
+                          className="flex-1 py-3 bg-white hover:bg-gray-50 text-gray-500 rounded-xl border border-[#E8E1D5] active:scale-95 transition-all text-xs sm:text-sm font-bold shrink-0 cursor-pointer font-sans"
+                        >
+                          關閉
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Live indicators */}
+                  <div className="pt-3 border-t border-[#FAF5EB] text-[10.5px] font-semibold text-gray-500 flex justify-between select-none">
+                    <span>基網匯率: 1 TWD ≈ {exchangeRateDisplay} KRW</span>
+                    <span className="text-[#768A7A]">匯率數據：離線快取/本機預設為準</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      // 3. LUGGAGE TAB COMPONENT
+      function LuggageTab({ categories, toggleItem, resetAll, checkAll }) {
+        const [activeCategory, setActiveCategory] = useState("all");
+
+        const totalItemsCount = categories.reduce((sum, cat) => sum + cat.items.length, 0);
+        const checkedItemsCount = categories.reduce(
+          (sum, cat) => sum + cat.items.filter((i) => i.checked).length, 0
+        );
+        const completionPercentage = totalItemsCount > 0 ? Math.round((checkedItemsCount / totalItemsCount) * 100) : 0;
+
+        const vitalReminders = [
+          {
+            id: "v1",
+            title: "72小時前入境登錄",
+            desc: "必須於出港前 72 小時填妥南韓電子入境申報碼 (Q-CODE) 以加速通關效力。建議儲存 QR 碼截圖於手機。"
+          },
+          {
+            id: "v2",
+            title: "電壓 & 行動電源規範",
+            desc: "韓國為 220v 圓腳圓孔插座。行動電源容量限 100Wh 以下，必須貼妥絕緣膠帶、隨身攜帶，絕對不能放托托行理！"
+          },
+          {
+            id: "v3",
+            title: "EVE 止痛藥禁帶警告！",
+            desc: "⚠️ 日本 EVE 止痛藥含有「丙烯異丙乙酸尿」防爆成分，韓國法規列為非法禁藥，入境被查獲會面臨重罰，千萬別帶！"
+          }
+        ];
+
+        return (
+          <div className="space-y-5 pb-10">
+            {/* Core bulletins */}
+            <div className="bg-[#FFFDF9] rounded-2xl p-4.5 border border-[#E8E1D5] shadow-xs select-none">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xl">⚠️</span>
+                <h3 className="font-serif font-black text-base text-[#3F2B20]">航空與韓國入境・核心備忘</h3>
+              </div>
+
+              <div className="space-y-3">
+                {vitalReminders.map((reminder) => (
+                  <div
+                    key={reminder.id}
+                    className="flex items-start gap-3 p-3.5 bg-[#FAF5EB] rounded-xl border border-[#E8E1D5]/40 text-xs sm:text-sm text-[#3F2B20]"
+                  >
+                    <span className="text-base mt-0.5 select-none">📌</span>
+                    <div className="space-y-1 flex-1">
+                      <div className="font-extrabold text-[#3F2B20] text-sm">{reminder.title}</div>
+                      <div className="text-[#8C7E74] text-[11.5px] leading-relaxed font-semibold">{reminder.desc}</div>
+                      {reminder.id === "v1" && (
+                        <div className="pt-2">
+                          <a
+                            href="https://cov19ent.kdca.go.kr/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center py-1.5 px-3 bg-[#A47551] text-white text-[10px] font-black rounded-lg"
+                          >
+                            🔗 點此立即申報 Q-CODE (官網) ➔
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Pack progress info */}
+            <div className="bg-[#FFFDF9] rounded-2xl p-5 border border-[#E8E1D5] shadow-xs select-none">
+              <div className="flex justify-between items-center mb-2.5">
+                <div>
+                  <span className="text-[10px] font-black text-[#8C7E74] uppercase tracking-wider block">Packing Progress</span>
+                  <h4 className="text-base font-bold text-[#3F2B20]">隨行行李收納打包進度</h4>
+                </div>
+                <div className="text-right">
+                  <span className="text-xl font-bold font-mono text-[#A47551]">{completionPercentage}%</span>
+                  <div className="text-[10px] font-semibold text-gray-400">已打包 {checkedItemsCount} / {totalItemsCount} 件</div>
+                </div>
+              </div>
+
+              <div className="w-full bg-[#FAF5EB] h-2.5 rounded-full overflow-hidden border border-[#E8E1D5]/40">
+                <div
+                  className="bg-[#A47551] h-full rounded-full transition-all duration-300"
+                  style={{ width: `${completionPercentage}%` }}
+                />
+              </div>
+
+              <div className="flex gap-2 mt-4 text-[11px] font-black">
+                <button onClick={checkAll} className="flex-1 py-2 bg-[#A47551]/10 hover:bg-[#A47551]/20 text-[#A47551] rounded-lg cursor-pointer transition-colors text-center">一鍵全部打勾</button>
+                <button onClick={resetAll} className="flex-1 py-2 bg-[#FAF6EE] text-[#8C7E74] border border-[#E8E1D5] rounded-lg cursor-pointer hover:bg-gray-50 transition-colors text-center">重置打包狀態</button>
+              </div>
+            </div>
+
+            {/* Luggage categorizations */}
+            <div className="space-y-4">
+              {categories.map((category) => (
+                <div key={category.id} className="bg-[#FFFDF9] rounded-2xl border border-[#E8E1D5] overflow-hidden shadow-xs">
+                  <div className="bg-[#FAF5EB]/50 px-4 py-3.5 border-b border-[#E8E1D5]/40 flex justify-between items-center select-none">
+                    <h4 className="font-serif font-black text-[#3F2B20] text-base flex items-center gap-1.5 capitalize">
+                      📦 {category.categoryName}
+                    </h4>
+                    <span className="text-[10.5px] font-mono font-bold text-[#8C7E74] bg-[#FFFDF9] px-2.5 py-0.5 rounded-full border border-[#E8E1D5]">
+                      {category.items.filter((i) => i.checked).length} / {category.items.length} Pack
+                    </span>
+                  </div>
+
+                  <ul className="divide-y divide-[#FAF5EB] text-sm">
+                    {category.items.map((item) => (
+                      <li
+                        key={item.id}
+                        onClick={() => toggleItem(category.id, item.id)}
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-[#FAF5EB]/30 transition-colors cursor-pointer select-none"
+                      >
+                        <span className="shrink-0 text-lg">
+                          {item.checked ? "✅" : "⬜"}
+                        </span>
+                        <span className={`text-[14px] sm:text-base ${item.checked ? "line-through text-gray-400 font-medium" : "text-charcoal font-bold"}`}>
+                          {item.name}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      }
+
+      // 4. TRANSLATOR TAB COMPONENT
+      function TranslatorTab({ phrases, addPhrase, deletePhrase }) {
+        const [selectedCategory, setSelectedCategory] = useState("全部");
+        const [searchQuery, setSearchQuery] = useState("");
+        const [chineseIn, setChineseIn] = useState("");
+        const [koreanIn, setKoreanIn] = useState("");
+        const [papagoText, setPapagoText] = useState("");
+        const [isPlayingId, setIsPlayingId] = useState(null);
+
+        const handleFormSubmit = (e) => {
+          e.preventDefault();
+          if (!chineseIn.trim() || !koreanIn.trim()) return;
+          addPhrase(chineseIn.trim(), koreanIn.trim());
+          setChineseIn("");
+          setKoreanIn("");
+        };
+
+        const triggerSpeak = (text, id) => {
+          if (!("speechSynthesis" in window)) {
+            alert("此裝置瀏覽器不支援 Web Speech TTS 語音播放功能");
+            return;
+          }
+          try {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = "ko-KR";
+            utterance.rate = 0.8;
+            utterance.onstart = () => setIsPlayingId(id);
+            utterance.onend = () => setIsPlayingId(null);
+            utterance.onerror = () => setIsPlayingId(null);
+            window.speechSynthesis.speak(utterance);
+          } catch (e) {
+            console.error("TTS output failed", e);
+            setIsPlayingId(null);
+          }
+        };
+
+        const categoriesList = ["全部", "常用", "交通", "美食", "購物", "緊急", "我的自訂"];
+
+        const filteredPhrases = phrases.filter((phrase) => {
+          const matchesCategory = selectedCategory === "全部" || phrase.category === selectedCategory;
+          const searchLower = searchQuery.toLowerCase();
+          const matchesSearch =
+            phrase.chinese.toLowerCase().includes(searchLower) ||
+            phrase.korean.toLowerCase().includes(searchLower);
+          return matchesCategory && matchesSearch;
+        });
+
+        return (
+          <div className="space-y-5 pb-10">
+            {/* Papago redirection box */}
+            <div className="bg-[#FFFDF9] rounded-2xl p-5 border border-[#E8E1D5] shadow-xs">
+              <h3 className="font-serif font-black text-base text-[#3F2B20] mb-3 select-none">🗣️ 韓文即時翻譯助手</h3>
+              <div className="bg-[#FAF5EB]/50 p-4 rounded-xl border border-[#DCD5C9]/50 space-y-3">
+                <input
+                  type="text"
+                  placeholder="例：請問這個還有大一號的尺碼嗎？"
+                  value={papagoText}
+                  onChange={(e) => setPapagoText(e.target.value)}
+                  className="w-full text-xs sm:text-sm bg-white border border-[#EBE5DA] rounded-xl px-3.5 py-3 text-[#3F2B20] font-semibold"
+                />
+                <a
+                  href={`https://papago.naver.com/?sk=zh-CN&tk=ko&hn=1&st=${encodeURIComponent(papagoText.trim() || "請問這個還有大一號的嗎？")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-3 bg-[#768A7A] hover:bg-[#5C6E60] text-white text-xs font-black text-center rounded-xl block cursor-pointer transition-colors select-none"
+                >
+                  💬 開啟 Naver Papago 網頁翻譯
+                </a>
+              </div>
+            </div>
+
+            {/* Main Phrase Database */}
+            <div className="bg-[#FFFDF9] rounded-2xl p-5 border border-[#E8E1D5] shadow-xs">
+              <h3 className="font-serif font-black text-base text-[#3F2B20] mb-3.5 border-b border-[#FAF5EB] pb-2">🔊 日常口說高頻句庫</h3>
+              
+              <div className="space-y-3">
+                <input
+                  type="text"
+                  placeholder="輸入關鍵字以搜尋句子..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-[#FAF5EB] border border-[#E8E1D5] rounded-xl px-3 py-2 text-xs text-charcoal focus:border-[#A47551] font-semibold"
+                />
+
+                {/* Horizontal Category Slider */}
+                <div className="flex gap-1.5 overflow-x-auto py-1 no-scrollbar select-none">
+                  {categoriesList.map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => setSelectedCategory(cat)}
+                      className={`flex-shrink-0 text-[10px] px-2.5 py-1.5 rounded-lg border transition-all cursor-pointer ${
+                        selectedCategory === cat
+                          ? "bg-[#A47551] text-[#FAF6EE] border-[#A47551] font-black"
+                          : "bg-[#FAF5EB] text-[#8C7E74] border-[#E8E1D5]"
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Loop list phrases */}
+              <div className="mt-4 space-y-3">
+                {filteredPhrases.map((phrase) => (
+                  <div key={phrase.id} className="p-3.5 rounded-xl bg-[#FFFDF9] border border-[#E8E1D5]/40 flex items-center justify-between gap-3 text-xs leading-snug">
+                    <div className="space-y-1 flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="text-[8px] font-black bg-orange-50 text-orange-600 px-1.5 rounded uppercase">{phrase.category}</span>
+                        <h4 className="font-extrabold text-gray-400 text-[11px] font-sans">{phrase.chinese}</h4>
+                      </div>
+                      <p className="font-serif font-black text-charcoal text-[14px] sm:text-base select-all break-words tracking-wide">{phrase.korean}</p>
+                    </div>
+
+                    <div className="flex items-center gap-1 shrink-0 select-none">
+                      <button
+                        onClick={() => triggerSpeak(phrase.korean, phrase.id)}
+                        className={`h-9 w-9 rounded-lg border flex items-center justify-center cursor-pointer transition-colors ${
+                          isPlayingId === phrase.id ? "bg-amber-400 text-white" : "bg-gray-50 text-[#A47551] hover:bg-[#A47551]/10 border-gray-200"
+                        }`}
+                      >
+                        📢
+                      </button>
+                      {phrase.category === "我的自訂" && (
+                        <button
+                          onClick={() => deletePhrase(phrase.id)}
+                          className="h-9 w-9 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 border border-red-200 flex items-center justify-center cursor-pointer"
+                        >
+                          ❌
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Custom additions */}
+            <div className="bg-[#FFFDF9] rounded-2xl p-5 border border-[#E8E1D5] shadow-xs">
+              <h3 className="font-serif font-black text-base text-[#A47551] mb-3">➕ 新增常用對話備忘記錄</h3>
+              <form onSubmit={handleFormSubmit} className="space-y-2.5">
+                <input
+                  type="text"
+                  required
+                  placeholder="中文說明意思 (例：這張卡可以刷嗎)"
+                  value={chineseIn}
+                  onChange={(e) => setChineseIn(e.target.value)}
+                  className="w-full text-xs bg-[#FFFDF9] border border-[#EBE5DA] rounded-xl px-3 py-2.5 text-[#3F2B20] font-semibold"
+                />
+                <input
+                  type="text"
+                  required
+                  placeholder="韓文句子 (例：카드 가능한가요)"
+                  value={koreanIn}
+                  onChange={(e) => setKoreanIn(e.target.value)}
+                  className="w-full text-xs bg-[#FFFDF9] border border-[#EBE5DA] rounded-xl px-3 py-2.5 text-[#3F2B20] font-semibold"
+                />
+                <button type="submit" className="w-full py-2.5 bg-gray-200 text-charcoal text-xs font-black rounded-xl select-none shadow-3xs cursor-pointer">確認新增至句庫列表 ➔</button>
+              </form>
+            </div>
+          </div>
+        );
+      }
+
+      // 5. BASIC INFO TAB COMPONENT
+      function BasicInfoTab() {
+        const [copied, setCopied] = useState(null);
+
+        const handleCopy = (text, id) => {
+          navigator.clipboard.writeText(text);
+          setCopied(id);
+          setTimeout(() => setCopied(null), 2000);
+        };
+
+        return (
+          <div className="space-y-4.5 pb-10">
+            {/* Outbound & Inbound Flights cards */}
+            <div className="grid grid-cols-1 gap-4 select-none">
+              <div className="bg-[#FFFDF9] rounded-2xl p-4.5 border border-[#E8E1D5] space-y-3.5">
+                <div className="flex justify-between items-center border-b border-[#FAF5EB] pb-2">
+                  <span className="text-[9px] font-black tracking-widest text-[#547963] bg-[#E2ECE5] px-2 py-0.5 rounded uppercase">去程 OUTBOUND</span>
+                  <span className="text-[10px] text-gray-400 font-bold">2026/06/22 (日)</span>
+                </div>
+                <div className="flex items-center justify-between text-xs font-semibold">
+                  <div>
+                    <span className="text-gray-400 block font-bold text-[10px]">高雄小港 KHH</span>
+                    <span className="text-xl font-black text-charcoal">17:00</span>
+                  </div>
+                  <div className="text-center text-gray-400">
+                    <span className="text-[9px] font-bold">3h 30m</span>
+                    <div className="w-20 h-px bg-gray-200 relative my-0.5"><span className="absolute -top-1 right-0">🛫</span></div>
+                    <span className="text-[8px] font-black block">濟州航空</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-gray-400 block font-bold text-[10px]">釜山金海 PUS</span>
+                    <span className="text-xl font-black text-charcoal">20:30</span>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-[10px] text-gray-500 font-bold pt-2 border-t border-dashed border-gray-100">
+                  <div className="text-center bg-gray-50 p-1.5 rounded">小港機場 3 樓櫃台</div>
+                  <div className="text-center bg-gray-50 p-1.5 rounded">隨身10Kg/託運15Kg</div>
+                </div>
+              </div>
+
+              <div className="bg-[#FFFDF9] rounded-2xl p-4.5 border border-[#E8E1D5] space-y-3.5">
+                <div className="flex justify-between items-center border-b border-[#FAF5EB] pb-2">
+                  <span className="text-[9px] font-black tracking-widest text-red-600 bg-red-50 px-2 py-0.5 rounded uppercase">回程 INBOUND</span>
+                  <span className="text-[10px] text-gray-400 font-bold">2026/06/25 (三)</span>
+                </div>
+                <div className="flex items-center justify-between text-xs font-semibold">
+                  <div>
+                    <span className="text-gray-400 block font-bold text-[10px]">釜山金海 PUS</span>
+                    <span className="text-xl font-black text-charcoal">15:00</span>
+                  </div>
+                  <div className="text-center text-gray-400">
+                    <span className="text-[9px] font-bold">1h 50m</span>
+                    <div className="w-20 h-px bg-gray-200 relative my-0.5"><span className="absolute -top-1 right-0">🛬</span></div>
+                    <span className="text-[8px] font-black block">德威航空</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-gray-400 block font-bold text-[10px]">高雄小港 KHH</span>
+                    <span className="text-xl font-black text-charcoal">16:50</span>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-[10px] text-gray-500 font-bold pt-2 border-t border-dashed border-gray-100">
+                  <div className="text-center bg-gray-50 p-1.5 rounded">金海機場 2 樓登機 C 區</div>
+                  <div className="text-center bg-gray-50 p-1.5 rounded">隨身10Kg/託運15Kg</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Hotel accommodation card */}
+            <div className="bg-[#FFFDF9] rounded-2xl p-5 border border-[#E8E1D5] space-y-3 shadow-xs">
+              <div className="flex justify-between items-center select-none">
+                <span className="text-[9px] font-black text-[#A47551] bg-[#FAF5EB] px-2.5 py-0.5 rounded">HOTEL ACCOMMODATION</span>
+                <a href={initialHotel.url} target="_blank" rel="noopener noreferrer" className="text-[10px] font-black text-[#768A7A] hover:underline flex items-center gap-0.5">🌐 地圖導航 ➔</a>
+              </div>
+              <div>
+                <h3 className="font-serif font-black text-lg text-[#3F2B20] leading-none">{initialHotel.name}</h3>
+                <p className="text-[11px] font-bold text-gray-400 mt-1 font-mono">{initialHotel.krName}</p>
+              </div>
+              <div className="p-3 rounded-lg bg-[#FAF5EB] border border-[#E8E1D5]/40 flex justify-between items-center gap-3 select-text">
+                <p className="text-[11.5px] font-semibold text-charcoal leading-relaxed">📍 地址：{initialHotel.address}</p>
+                <button
+                  onClick={() => handleCopy(initialHotel.address, "hotel-addr")}
+                  className="px-2.5 py-1 text-[10.5px] bg-white border border-gray-200 hover:bg-gray-50 text-gray-600 rounded font-black shrink-0 cursor-pointer shadow-3xs"
+                >
+                  {copied === "hotel-addr" ? "已複製" : "複製地址"}
+                </button>
+              </div>
+            </div>
+
+            {/* Search Toilet keywords */}
+            <div className="bg-[#FFFDF9] rounded-2xl p-5 border border-[#E8E1D5] shadow-xs select-none space-y-3">
+              <h3 className="font-serif font-black text-base text-[#3F2B20] flex items-center gap-1.5">🚽 在釜山街頭緊急找公用化妝室</h3>
+              <p className="text-[11px] text-gray-400 font-semibold leading-relaxed">點擊以下關鍵字將會自動開啟 Naver Map 深度搜尋周邊最合適的便溺化妝設施：</p>
+              <div className="grid grid-cols-2 gap-2 text-xs font-black">
+                <a href="https://map.naver.com/v5/search/지하철" target="_blank" rel="noopener noreferrer" className="p-3 bg-[#FAF5EB]/60 hover:bg-[#FAF5EB] border border-[#E8E1D5]/40 rounded-xl text-center cursor-pointer transition-colors block">🚇 地鐵公共洗手間</a>
+                <a href="https://map.naver.com/v5/search/쇼핑몰" target="_blank" rel="noopener noreferrer" className="p-3 bg-[#FAF5EB]/60 hover:bg-[#FAF5EB] border border-[#E8E1D5]/40 rounded-xl text-center cursor-pointer transition-colors block">🏢 豪華百貨商場</a>
+                <a href="https://map.naver.com/v5/search/개방화장실" target="_blank" rel="noopener noreferrer" className="p-3 bg-[#FAF5EB]/60 hover:bg-[#FAF5EB] border border-[#E8E1D5]/40 rounded-xl text-center cursor-pointer transition-colors block">🔓 對外高頻開放化妝室</a>
+                <a href="https://map.naver.com/v5/search/공용화장실" target="_blank" rel="noopener noreferrer" className="p-3 bg-[#FAF5EB]/60 hover:bg-[#FAF5EB] border border-[#E8E1D5]/40 rounded-xl text-center cursor-pointer transition-colors block">🚻 景點共用衛生間</a>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // Render Mounting triggers
+      const rootNode = ReactDOM.createRoot(document.getElementById("root"));
+      rootNode.render(<App />);
+    </script>
   </body>
 </html>
-
